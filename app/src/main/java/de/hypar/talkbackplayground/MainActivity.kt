@@ -29,11 +29,15 @@ import androidx.navigation.compose.rememberNavController
 import de.hypar.talkbackplayground.ui.screens.MergeSemanticsScreen
 import de.hypar.talkbackplayground.ui.screens.ProfileScreen
 import de.hypar.talkbackplayground.ui.screens.SemanticsBasicsScreen
+import de.hypar.talkbackplayground.ui.screens.start.ProfileScreenStart
 import de.hypar.talkbackplayground.ui.theme.TalkBackPlaygroundTheme
 import kotlinx.serialization.Serializable
 
 @Serializable
 object Profile
+
+@Serializable
+object ProfileStart
 
 @Serializable
 object SemanticsBasics
@@ -63,7 +67,8 @@ class MainActivity : ComponentActivity() {
                                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                                 val currentDestination = navBackStackEntry?.destination?.route
                                 val title = when(currentDestination) {
-                                    Profile::class.qualifiedName -> "Profile"
+                                    Profile::class.qualifiedName -> "Profile Accessible"
+                                    ProfileStart::class.qualifiedName -> "Profile Start"
                                     TopicList::class.qualifiedName -> "TalkBack Samples"
                                     SemanticsBasics::class.qualifiedName -> "Semantics"
                                     Roles::class.qualifiedName -> "Semantic Roles"
@@ -80,10 +85,11 @@ class MainActivity : ComponentActivity() {
                         navController = navController, startDestination = TopicList,
                     ) {
                         composable<TopicList> { TopicListScreen(navController) }
+                        composable<ProfileStart> { ProfileScreenStart() }
                         composable<Profile> { ProfileScreen() }
-                        composable<SemanticsBasics> { SemanticsBasicsScreen() }
-                        composable<Roles> { RolesScreen() }
-                        composable<MergeSemantics> { MergeSemanticsScreen() }
+//                        composable<SemanticsBasics> { SemanticsBasicsScreen() }
+//                        composable<Roles> { RolesScreen() }
+//                        composable<MergeSemantics> { MergeSemanticsScreen() }
                     }
                 }
             }
@@ -94,10 +100,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TopicListScreen(navController: NavController) {
     val topics: List<Pair<String, Any>> = listOf(
-        Pair("Profile", Profile),
-        Pair("Semantics", SemanticsBasics),
-        Pair("Merge semantics", MergeSemantics),
-        Pair("Semantic Roles", Roles),
+        Pair("Profile", ProfileStart),
+        Pair("Profile Accessible", Profile),
+//        Pair("Semantics", SemanticsBasics),
+//        Pair("Merge semantics", MergeSemantics),
+//        Pair("Semantic Roles", Roles),
     )
 
     LazyColumn {

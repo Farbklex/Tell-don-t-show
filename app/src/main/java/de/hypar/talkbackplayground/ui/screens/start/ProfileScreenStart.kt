@@ -1,4 +1,4 @@
-package de.hypar.talkbackplayground.ui.screens
+package de.hypar.talkbackplayground.ui.screens.start
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -28,28 +28,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.VerbatimTtsAnnotation
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.hypar.talkbackplayground.ui.screens.ProfileUiState
 import de.hypar.talkbackplayground.ui.theme.TalkBackPlaygroundTheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun ProfileScreen(uiState: ProfileUiState = ProfileUiState()) {
-    var showSmsNotification by remember { mutableStateOf(false) }
-
+fun ProfileScreenStart(uiState: ProfileUiState = ProfileUiState()) {
+    var showSmsNotification by remember {mutableStateOf(false)}
     Column {
         PersonalData(uiState)
         Spacer(modifier = Modifier.height(32.dp))
@@ -57,13 +48,8 @@ fun ProfileScreen(uiState: ProfileUiState = ProfileUiState()) {
         Spacer(modifier = Modifier.height(32.dp))
         PaymentInfo(uiState)
     }
-    if (showSmsNotification) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Green)
-                .padding(16.dp)
-                .semantics { liveRegion = LiveRegionMode.Polite }) {
+    if(showSmsNotification){
+        Box(modifier = Modifier.fillMaxWidth().background(Color.Green).padding(16.dp)){
             Text("Verification SMS sent")
             LaunchedEffect(showSmsNotification) {
                 delay(3000)
@@ -76,7 +62,7 @@ fun ProfileScreen(uiState: ProfileUiState = ProfileUiState()) {
 @Composable
 private fun PersonalData(uiState: ProfileUiState) {
     Text(
-        modifier = Modifier.semantics { heading() },
+        modifier = Modifier,
         text = "Personal Data",
         style = MaterialTheme.typography.headlineMedium,
     )
@@ -91,7 +77,10 @@ private fun PersonalData(uiState: ProfileUiState) {
 
                 .padding(8.dp)
         ) {
-            ProfileDataRow("Name", "${uiState.firstName} ${uiState.lastName}")
+            ProfileDataRow(
+                "Name",
+                "${uiState.firstName} ${uiState.lastName}"
+            )
             ProfileDataRow("Birthday", uiState.birthdate)
         }
     }
@@ -100,7 +89,7 @@ private fun PersonalData(uiState: ProfileUiState) {
 @Composable
 private fun ContactData(uiState: ProfileUiState, onShowSmsNotification: () -> Unit) {
     Text(
-        modifier = Modifier.semantics { heading() },
+        modifier = Modifier,
         text = "Contact Info",
         style = MaterialTheme.typography.headlineMedium
     )
@@ -114,23 +103,14 @@ private fun ContactData(uiState: ProfileUiState, onShowSmsNotification: () -> Un
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
-            val addressText = buildAnnotatedString {
-                append("${uiState.address}\n")
-                withAnnotation(VerbatimTtsAnnotation(uiState.zipCode)) {
-                    append(uiState.zipCode)
-                }
-                append(" ")
-                append(uiState.city)
-            }
-            AnnotatedProfileDataRow(
-                label = "Address",
-                value = addressText
+            ProfileDataRow(
+                "Address",
+                "${uiState.address}\n${uiState.zipCode} ${uiState.city}"
             )
             ProfileDataRow("E-Mail", uiState.email)
             ProfileDataRow(
                 "Phone No.",
-                uiState.redactedPhoneNo,
-                labelContentDescription = "Phone number"
+                uiState.redactedPhoneNo
             )
             ErrorText("Phone number has not, yet been verified.", onShowSmsNotification)
         }
@@ -140,28 +120,18 @@ private fun ContactData(uiState: ProfileUiState, onShowSmsNotification: () -> Un
 @Composable
 private fun PaymentInfo(uiState: ProfileUiState) {
     Text(
-        modifier = Modifier.semantics { heading() },
+        modifier = Modifier,
         text = "Payment Info",
         style = MaterialTheme.typography.headlineMedium
     )
-
     Card(
         modifier = Modifier
             .border(
                 BorderStroke(2.dp, Color.DarkGray), RoundedCornerShape(12.dp)
             )
             // Yes!
-            .clickable(onClickLabel = "edit payment info") {
+            .clickable() {
                 // TODO Edit payment info
-            }
-            .clearAndSetSemantics {
-                contentDescription = "Bank account with IBAN starting with DE49, ending with 53"
-//                    buildAnnotatedString {
-//                        append("Bank account with IBAN ")
-//                        withAnnotation(VerbatimTtsAnnotation(uiState.redactedIBAN)) {
-//                            append(uiState.redactedIBAN)
-//                        }
-//                    }
             }
     ) {
         Row(
@@ -186,15 +156,13 @@ private fun PaymentInfo(uiState: ProfileUiState) {
 
 @Composable
 private fun ErrorText(text: String, onShowSmsNotification: () -> Unit) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClickLabel = "send verification SMS") {
+            .clickable() {
                 onShowSmsNotification()
-            }
-            .semantics {
-                contentDescription = "Error"
-//                error(description = "Verify number now.")
+//                Toast.makeText(context, "Verification SMS sent", Toast.LENGTH_SHORT).show()
             },
         horizontalArrangement = Arrangement.End
     ) {
@@ -210,41 +178,25 @@ private fun ErrorText(text: String, onShowSmsNotification: () -> Unit) {
 }
 
 @Composable
-private fun ProfileDataRow(
+internal fun ProfileDataRow(
     label: String,
     value: String,
-    modifier: Modifier = Modifier,
-    labelContentDescription: String? = null,
-) {
-    AnnotatedProfileDataRow(label, AnnotatedString(value), modifier, labelContentDescription)
-}
-
-@Composable
-private fun AnnotatedProfileDataRow(
-    label: String,
-    value: AnnotatedString,
-    modifier: Modifier = Modifier,
-    labelContentDescription: String? = null,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) { },
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.Absolute.SpaceBetween
     ) {
-        Text(
-            text = label,
-            modifier = if (labelContentDescription != null) Modifier.clearAndSetSemantics {
-                contentDescription = labelContentDescription
-            } else Modifier)
+        Text(text = label)
         Text(text = value, textAlign = TextAlign.End)
     }
 }
 
 @Composable
 @Preview(showBackground = true)
-fun ProfileScreenPreview() {
+fun ProfileScreenStartPreview() {
     TalkBackPlaygroundTheme {
-        ProfileScreen()
+        ProfileScreenStart()
     }
 }

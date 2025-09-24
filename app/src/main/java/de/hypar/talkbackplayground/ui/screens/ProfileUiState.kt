@@ -6,7 +6,8 @@ data class ProfileUiState(
     val address: String = "Messedamm 26",
     val zipCode: String = "14055",
     val city: String = "Berlin",
-    val birthdate: String = "01.01.1990",
+    val birthdate: String = "01/06/1990",
     val email: String = "contact@hypar.de",
     val redactedPhoneNo: String = "+4915*******99",
+    val redactedIBAN: String = "DE49********53"
 )
