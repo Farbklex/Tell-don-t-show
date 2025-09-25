@@ -1,6 +1,6 @@
 # Tell, don’t show
 ## Optimize the Text-To-Speech experience for blind users
-### Sample project for my Droidcon 2025 lightning talk
+### Sample project for my Droidcon Berlin 2025 lightning talk
 
 This is a sample android project used in the demo for my
 [Droidcon Berlin 2025 lightning talk](https://berlin.droidcon.com/speakers/alexander-hoffmann)
